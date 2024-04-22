@@ -1,0 +1,18 @@
+ # This is file which is used by docker compose dependency. It contains all the services that needs to start up when we start the docker. By default, spring makes compose.yml in root folder.
+ # But, we can also place this file to other location, or provide any other name to this file, configuring the place in properties file.
+
+ services:
+   postgres:
+     # We can specify the specific image version instead of latest
+     image: 'postgres:latest'
+     environment:
+       - 'POSTGRES_DB=my-new -postgres-database'
+       - 'POSTGRES_PASSWORD=123456'
+       - 'POSTGRES_USER=postgres-user-sharan'
+     ports:
+#       - '5432'
+# Above, it is said that docker will run on dynamic port on local machine, but postgres sql inside docker will run on port 5432. But, we need port of docker itself to configure it with application.
+# So, we'll confire as==> docker port on local : service port inside the docker
+       - '5432:5432'
+# We have not mentioned any datasource connection inside the application.properties file because we have mentioned in this file. If we mention it in properties file, it will be duplicate,
+ # because we have all the required info to connect to DB, ie, db name, username, password, port, and connection will be through docker. All these will be auto picked up by spring, and fill in at runtime.
