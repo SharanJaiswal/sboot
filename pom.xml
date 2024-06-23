@@ -1,23 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--Maven is a project management tool along with build management tool. It helps to build generation, resolve dependencies, documentation, etc. by using Project Object Model. -->
+<!--When "maven" cmd is hit, it looks for pom.xml in the current directory and get needed configuration. -->
+<!--pom=src - {main{java-{com.company.appname-{Application.java={allEPSEndpointPackage}}}}=test{java-{com.company.appname-{Application.java={allEPSTestsPackage}}}}} -->
+<!--Each pom file inherits the parent things from the parent project pom file which holds configurations and dependencies. -->
+<!--Superpom:  https://maven.apache.org/ref/3.6.3/maven-model-builder/super-pom.html -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">	<!-- This is for the XML schema|rule for maven XML file -->
 	<modelVersion>4.0.0</modelVersion>
-	<parent>
+	<parent>	<!-- To define the Parent project. Current project inherit the configuration from parent project pom by default. superPom.xlm is default and topmost parent pom -->
 		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
+		<artifactId>spring-boot-starter-parent</artifactId>	<!-- Unique identifier of project in maven central, combining with groupId. -->
 		<version>3.2.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
+<!-- Next 5 tags are specific to current project. -->
 	<groupId>com.example</groupId>
 	<artifactId>exampleApps</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>springboot application</name>
 	<description>project for learning springboot</description>
-	<properties>
+	<properties>	<!-- It's a key-val pair for configurations which we can use throughout the xml file as "${java.version}" . -->
 		<java.version>17</java.version>
+<!--		<maven.compiler.target>17</maven.compiler.target>-->
+<!--		<maven.compiler.source>17</maven.compiler.source>-->
+		<junit.jupiter.version>5.4.0</junit.jupiter.version>
 	</properties>
-	<repositories>
-		<repository>
+	<repositories>	<!-- This is from where Maven look for project dependency and download the artifacts(jars).-->
+		<repository>	<!-- This specific repo is optional|redundant here as it is inherited from parent project pom file. -->
 			<id>central</id>
 			<url>https://repo.maven.apache.org/maven2</url>
 		</repository>
@@ -82,16 +91,87 @@
 <!--            <artifactId>postgresql</artifactId>-->
 <!--            <scope>runtime</scope>-->
 <!--        </dependency>-->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>${junit.jupiter.version}</version>
+<!--			We don't want to include this library in build stage. And there are many values.-->
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>${junit.jupiter.version}</version>
+			<!--			We don't want to include this library in build stage. And there are many values.-->
+			<scope>test</scope>
+		</dependency>
 
 	</dependencies>
 
+<!-- This is where actual maven build info starts. -->
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+
+<!--			Below plugin is used to run the tests from maven, not from the IDE to Junit API-->
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.22.1</version>
+<!--                <configuration>-->
+<!--                    include|exclude tests with certain set of tags.-->
+<!--                </configuration>-->
+			</plugin>
+
+<!-- Here we are adding a plugin to override the validate phase of maven lifecycle to add additional task into the validate phase. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>3.1.2</version>
+				<executions>
+					<execution>
+						<id>validate-checkstyle</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<configLocation>myCodeStyle.xml</configLocation>
+				</configuration>
+			</plugin>
+
+<!-- In "verify" phase, there is no task defined as such. Let's define our source code analyser as a task in it. To find unused variables, objects & imports; empty catch blocks; duplicate codes; etc. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<version>3.21.2</version>
+				<executions>
+					<execution>
+						<id>pmd-analysis</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>pmd</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
+
+<!-- At "deploy" phase where it deploys our artifact on remote central repository, we need to explicitly specify the remote repo location. It is not inherited by any means. -->
+<!-- If we don't specify it, then "maven deploy" will fail to execute. If repo access requires some credential, we'll mention it in setings.xml file. -->
+<!-- If settings.xml file is not present by default. We'll make it in .m2 folder and add relevant settings. -->
+<!--	<distributionManagement>-->
+<!--		<repository>-->
+<!--			<id>central</id>-->
+<!--			<name>Maven Central</name>-->	<!-- Optional -->
+<!--			<url>https://repo1.maven.org/maven2/</url>-->
+<!--		</repository>-->
+<!--	</distributionManagement>-->
+
 
 </project>

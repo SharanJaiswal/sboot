@@ -1,0 +1,10 @@
+<!--This is just a sample setting dot xml which is actually present in ~/.m2/ location -->
+<!-- <settings>
+    <servers>
+        <server>
+            <id>central</id>
+            <username>central_repo_user_name</username>
+            <password>central_repo_password</password>
+        </server>
+    </servers>
+</settings> -->

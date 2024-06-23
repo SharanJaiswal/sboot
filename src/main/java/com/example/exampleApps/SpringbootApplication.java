@@ -12,6 +12,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.support.RestClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
@@ -20,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
 @SpringBootApplication
+@ComponentScan(basePackages = "com.example.exampleApps")	// basePackages key is optional. This whole line default and hence redundant because scanning by default starts from level where Application file is present.
 public class SpringbootApplication {
 
 	// logger - LoggerFactory gives Logger object for a given class. We are making it private static final because we don't want it to get accessed and change its reference.
@@ -39,6 +41,7 @@ public class SpringbootApplication {
 //		SpringApplication.run(SpringbootApplication.class, args);
 
 		ConfigurableApplicationContext context = SpringApplication.run(SpringbootApplication.class, args);
+//		context.close();	// closes application DO NOT DO THIS.
 		WelcomeMessage welcomeMessage3 = (WelcomeMessage) context.getBean("welcomeMessage");	// Internally, bean name is in camelCase
 		System.out.println(welcomeMessage3.getWelcomeMessage());
 
@@ -52,7 +55,7 @@ public class SpringbootApplication {
 	}
 
 
-	@Bean
+	@Bean	// Used where we provide (external) configuration details to select the way to create an object of class required.
 	UserHttpClient userHttpClient() {
 		RestClient restClient = RestClient.create("https://jsonplaceholder.typicode.com/");
 		HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(RestClientAdapter.create(restClient)).build();
@@ -61,13 +64,13 @@ public class SpringbootApplication {
 
 
 
-	// CommandLineRunner is something that run after the application gets started, move specifically, after the application context has been created, which has all the ean in container.
+	// CommandLineRunner is something that run after the bean gets created, more specifically, after the application context has been created, which has all the bean in container.
 	// CommandLineRunner is a Functional Interface, ie, interface is just having one abstract method. Hence, it can be used as a lambda expression, lambda can target this.
 	// It thus saves time by avoiding implementing this class and overriding that one abstract method, which is only member of that interface.
 
 	@Bean	// way of creating bean in an application context
 //	CommandLineRunner runner() {	// We can use this if we are not calling runRepositoryJdbc for insertion after application starts.
-	CommandLineRunner runner (RunRepositoryJdbc runRepositoryJdbc, UserRestClient restClient, UserHttpClient httpClient) {	// we are establishing a dependency injection of runRepositoryJdbc when Bean of CommandLineRunner gets created i application context.
+	CommandLineRunner runner (RunRepositoryJdbc runRepositoryJdbc, UserRestClient restClient, UserHttpClient httpClient) {	// we are establishing a dependency injection of runRepositoryJdbc when Bean of CommandLineRunner gets created in application context.
 		return args -> {
 			Run run = new Run(1, "First Run", LocalDateTime.now(), LocalDateTime.now().plus(1, ChronoUnit.HOURS), 5, Location.OUTDOOR, null);
 			LOG.info("Run: " + run);
@@ -83,5 +86,4 @@ public class SpringbootApplication {
 			System.out.println(httpClient.findById(1));
 		};
 	}
-
 }

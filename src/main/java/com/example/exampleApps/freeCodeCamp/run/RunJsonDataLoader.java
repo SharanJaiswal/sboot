@@ -10,7 +10,9 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.InputStream;
 
-@Component
+@Component // (value = "ObjectNameForThisClassObject")  // follows "convention over configuration" approach, ie, spring boot will try to autoconfigure based on conventions reducing the need for explicit configuration.
+// @Controller, @Service, @Repository etc. all internally tells Spring to create and manage its lifecycle.
+// This annotation uses default constructor of class to create its object. If it is not present, then application will fail to start. In such cases, use @Bean and skip @Component here.
 public class RunJsonDataLoader implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(RunJsonDataLoader.class);
