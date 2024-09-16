@@ -3,6 +3,7 @@ package com.example.exampleApps.freeCodeCamp.run;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -12,6 +13,18 @@ import java.util.Optional;
 
 @Repository
 public class RunRepository {
+
+    // Making EntityManagerFactory available by springboot is done by making its instance created and available using persistence unit.
+//    @PersistenceUnit  // This gives the persistence context.
+//    private EntityManagerFactory emf;
+    // ...and thus, using this, we can create the entity manager object in the code. But there is another way to directly create the Entity Manager object.
+
+//    @PersistenceContext // This directly uses the created shared persistence context object which is risky for multi-threaded persist operations. By default this will throw error on all write operations.
+//    @PersistenceContext(type = PersistenceContextType.EXTENDED) // Taking the the authority on self to manage the transactions. Risk is involved for simultaneous write operations.
+//    private EntityManager em;
+
+    // The above 2 can be abstracted further, where we directly call the JPA methods. We extend CrudRepository<Class, PK_Type>, and we can use this class's object to directly call JPA methods.
+
 
     private List<Run> runs = new ArrayList<>();
 
@@ -52,7 +65,7 @@ public class RunRepository {
         runs.removeIf(run -> run.id().equals(id));
     }
 
-    @PostConstruct  // Used on method that need to be executed after the dependency injection is done, to perform some initialization.
+    @PostConstruct  // Used on method that need to be executed after the dependency injection is done, to perform some initialization. We can use this method to consider doing things just after app starts.
     private void init() {
 
         runs.add (new Run(1,

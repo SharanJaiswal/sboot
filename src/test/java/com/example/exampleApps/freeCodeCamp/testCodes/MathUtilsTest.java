@@ -10,7 +10,7 @@ import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.condition.OS;
 
 // Random order of test method execution. On every test method run, separate instance of test class is created. Hence, no interdependency of test methods via class|obj level attributes.
-
+//@Disabled   // to skip tests
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 // overriding default behavior of life of this class object lifecycle from per test method to per class, i.e., object will persist.
 // In this way, we can share the class member variables among test methods, but this alone doesn't guarantee the order of test method execution.

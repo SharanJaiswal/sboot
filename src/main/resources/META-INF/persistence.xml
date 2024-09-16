@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!--This file is used to configure JPA persistence unit. It contains the metadata information about the connection and behavior-->
 <persistence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
              version="2.0" xmlns="http://java.sun.com/xml/ns/persistence">
+<!--    Persistence Unit contains metadata about persistence context. We can create many persistence-units in persistence tag-->
     <persistence-unit name="myApp" transaction-type="RESOURCE_LOCAL">
-        <provider>org.hibernate.ejb.HibernatePersistence</provider>
-        <properties>
-            <property name="javax.persistence.jdbc.url" value="jdbc:h2:tcp://localhost/~/test" />
-            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
-            <property name="javax.persistence.jdbc.user" value="sa"/>
-            <property name="javax.persistence.jdbc.password" value=""/>
-            <property name="hibernate.show_sql" value="true"/>
+        <provider>org.hibernate.ejb.HibernatePersistence</provider> <!-- provider is an implementer of JPA implementation. Here in this case, it is hibernate -->
+        <properties>    <!--  -->
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:tcp://localhost/F:/h2dbLocation/h2dbServer" />
+            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>  <!-- DB driver. Any DB needs its driver whose dependency needs to get downloaded in pom.xml file -->
+            <property name="javax.persistence.jdbc.user" value="sharan-h2-db-standalone"/>
+            <property name="javax.persistence.jdbc.password" value="12345"/>
+            <!-- Below properties are for configuring the persistence provider directly -->
+            <property name="hibernate.show_sql" value="true"/>  <!-- seeing SQL statements in the console -->
             <property name="hibernate.format_sql" value="true"/>
-            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
-            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>    <!-- the SQL grammar that JPA implementation uses to connect to DB,i.e., different syntax for different DBs -->
+            <property name="hibernate.hbm2ddl.auto" value="none"/>   <!-- Activities needs to be auto performed by hibernate while converting hibernate entities annotations to DDL. create-drop drops everything in DB when persistence context starts and ends. Creates tables automatically when persistence context starts. -->
+<!-- Validation matches the entities in java app with the entities in the DB - no ddl no dml. Update updates the DB with the changed entity. Create only drops and creates at start but doesn't drop when the persistence is closed - ddl dml. "none" does nothing -->
         </properties>
     </persistence-unit>
 </persistence>
+<!-- https://www.codejava.net/frameworks/spring-boot/connect-to-h2-database-examples https://stackoverflow.com/questions/61865206/springboot-2-3-0-while-connecting-to-h2-database -->

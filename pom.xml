@@ -53,6 +53,7 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
+            <scope>provided</scope>
 		</dependency>
 
 		<dependency>
@@ -65,12 +66,17 @@
 			<artifactId>spring-boot-starter-data-jdbc</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+		</dependency>
+
 <!--		Database driver is below. While using JPA and not directly JDBC, if we change the DB source, we only need to change this dependency and DB access object in code-->
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
-			<scope>compile</scope>
-<!--			<scope>runtime</scope>-->
+<!--			<scope>compile</scope>-->
+			<scope>runtime</scope>
 		</dependency>
 <!--Here we have JPA implementation which is hibernate itself, abstracting JDBC. This alone, along with DB driver, can be sufficient for DB integration. We don't need JDBC driver explicitly after this.-->
         <dependency>
@@ -126,23 +132,23 @@
 			</plugin>
 
 <!-- Here we are adding a plugin to override the validate phase of maven lifecycle to add additional task into the validate phase. -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>3.1.2</version>
-				<executions>
-					<execution>
-						<id>validate-checkstyle</id>
-						<phase>validate</phase>
-						<goals>
-							<goal>check</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<configLocation>myCodeStyle.xml</configLocation>
-				</configuration>
-			</plugin>
+<!--			<plugin>-->
+<!--				<groupId>org.apache.maven.plugins</groupId>-->
+<!--				<artifactId>maven-checkstyle-plugin</artifactId>-->
+<!--				<version>3.1.2</version>-->
+<!--				<executions>-->
+<!--					<execution>-->
+<!--						<id>validate-checkstyle</id>-->
+<!--						<phase>validate</phase>-->
+<!--						<goals>-->
+<!--							<goal>check</goal>-->
+<!--						</goals>-->
+<!--					</execution>-->
+<!--				</executions>-->
+<!--				<configuration>-->
+<!--					<configLocation>myCodeStyle.xml</configLocation>-->
+<!--				</configuration>-->
+<!--			</plugin>-->
 
 <!-- In "verify" phase, there is no task defined as such. Let's define our source code analyser as a task in it. To find unused variables, objects & imports; empty catch blocks; duplicate codes; etc. -->
 			<plugin>
@@ -173,5 +179,26 @@
 <!--		</repository>-->
 <!--	</distributionManagement>-->
 
+<!--To select the profile when entering the "mvn spring-boot:run -Pproduction|local|stage" . Do remember, there is -P present to select the profile. Enterprise way.-->
+	<profiles>
+		<profile>
+			<id>local</id>
+			<properties>
+				<spring-boot.run.profiles>dev</spring-boot.run.profiles>
+			</properties>
+		</profile>
+		<profile>
+			<id>stage</id>
+			<properties>
+				<spring-boot.run.profiles>qa</spring-boot.run.profiles>
+			</properties>
+		</profile>
+		<profile>
+			<id>production</id>
+			<properties>
+				<spring-boot.run.profiles>prod</spring-boot.run.profiles>
+			</properties>
+		</profile>
+	</profiles>
 
 </project>
