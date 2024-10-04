@@ -23,7 +23,7 @@ import java.time.temporal.ChronoUnit;
 
 @SpringBootApplication
 @ComponentScan(basePackages = "com.example.exampleApps")	// basePackages key is optional. This whole line default and hence redundant because scanning by default starts from level where Application file is present.
-//@EnableTransactionManagement	// this annotation used with JPA and must be at the top of this class to enable declarative transaction in this app, so that wherever @Transactional is used, it'll work as expected.
+//@EnableTransactionManagement	// this optional annotation used with JPA and must be at the top of this class to enable declarative transaction in this app, so that wherever @Transactional is used, it'll work as expected. Otherwise, in absence of it, there is a high chance that @Transactional annotation will not work.
 public class SpringbootApplication {
 
 	// logger - LoggerFactory gives Logger object for a given class. We are making it private static final because we don't want it to get accessed and change its reference.

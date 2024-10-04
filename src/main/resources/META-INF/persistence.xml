@@ -15,7 +15,7 @@
             <property name="hibernate.show_sql" value="true"/>  <!-- seeing SQL statements in the console -->
             <property name="hibernate.format_sql" value="true"/>
             <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>    <!-- the SQL grammar that JPA implementation uses to connect to DB,i.e., different syntax for different DBs -->
-            <property name="hibernate.hbm2ddl.auto" value="none"/>   <!-- Activities needs to be auto performed by hibernate while converting hibernate entities annotations to DDL. create-drop drops everything in DB when persistence context starts and ends. Creates tables automatically when persistence context starts. -->
+            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>   <!-- Activities needs to be auto performed by hibernate while converting hibernate entities annotations to DDL. create-drop drops everything in DB when persistence context starts and ends. Creates tables automatically when persistence context starts. -->
 <!-- Validation matches the entities in java app with the entities in the DB - no ddl no dml. Update updates the DB with the changed entity. Create only drops and creates at start but doesn't drop when the persistence is closed - ddl dml. "none" does nothing -->
         </properties>
     </persistence-unit>

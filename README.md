@@ -23,7 +23,7 @@ We can add user defined task inside any phase. This can be achieved using pom.xm
 
 Spring Beans: Java objects managed by Spring container (IoC container, contains and manages all beans which get created in them using @Component|@Bean). Created using @ComponentScan and classes with @Configuration during app bootUp.
 Time of object initialization: Eagerness(when booting up application, with Scope as singleton, default); Lazy(when needed, with scope Prototype, classes with @Lazy annotation initialized weather it's with @Component or w/o or with any bean initialization annotation).
-BeanLifecycle::: AppStart -> start IoC container -> Construct Beans -> Inject dependency into constructed beans -> @PostConstruct -> Use Bean -> @PreDestroy -> Bean Destroyed.
+BeanLifecycle::: AppStart -> start IoC container -> resolve dependency injected through constructor, adn then Construct Beans and run constructor -> Inject dependency into constructed beans(using reflection - field and setter injection) -> @PostConstruct -> Use Bean -> @PreDestroy -> Bean Destroyed.
 
 Bean Initialization: Eager - Lazy
 
@@ -43,8 +43,11 @@ To pick specific prop file, mention a property along with default properties if 
 We know, when we bootup our app in intellij, it runs "mvn spring-boot:run" which picks application.properties file by default. But if set the env variable such that when app bootUps, it picks prod profile.
 To do that, we provide env var "-Dspring-boot.run.profiles=prod". Or when we run the app, we can use command "mvn spring-boot:run -Dspring-boot.run.profiles=prod". Specifying env var for profile, will override the "spring.profiles.active" property, even if it is mentioned inside the application.properties file.
 See pom.xml also where <profile> annotation is present.
-We use @Profile("dev|aq|prod") over class to tell spring to only handle the class when active profile value matches with this annotation value. Otherwise, skip it.
-Also, we can provide multiple active profiles, separated by commas. In precedence order, last will be given more preference. eg, spring.profiles.active=prod,qa
+We use @Profile("dev|aq|prod") over class to tell spring to only handle the class and create its bean when active profile value matches with this annotation value. Otherwise, skip it.
+Also, we can provide multiple active profiles, separated by commas. Although both are considered as active profiles, but in precedence order, last will be given more preference for first looking for property. eg, spring.profiles.active=prod,qa
 
 AOP(Aspect Oriented Programming): Helps to intercept the method invocation. To perform some task before and after the method. This way, focus is on business logic by handling boilerplate and repetitive code like logging, transaction mgmt, Security, etc.
 Aspect is a module to handle these repetitive or boilerplate code. Helps in achieving reusability, maintainability of code.
+
+
+Critical section: code segment where shared resources are being accessed and modified. Solution is achieved using transaction based on ACID principles. Atomicity: if any operation fails, entire txn rollbacks. Consistency: Before and after the trxn, the resource should be consistent even after failure. Isolation: individual txns are isolated in multi txn space. Durability: once txn is complete, data persist even in system crash.
