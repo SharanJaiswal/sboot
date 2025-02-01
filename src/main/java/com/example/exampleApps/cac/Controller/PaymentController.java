@@ -22,7 +22,7 @@ import java.util.Date;
 public class PaymentController {
 
     @Autowired  // Field injection is not suggested. Instead, use class constructor to assign the instance bean to class private final variables
-    PaymentService paymentService;
+    PaymentService paymentService;  // As a good practice always prepend "private final" to the class attributes.
 
     // This method will get invoked at every invocation of every controller method and perform custom logic.
 //    @InitBinder
@@ -37,7 +37,7 @@ public class PaymentController {
 
 //    @ResponseBody   // Can be used over classes also. If @Controller is used, then this should be present over every controller resource endpoint method. Not required if @RestController is used, as it is part of it. Tells that return type of method should be serialized to only HTTP response type. If it is not included, then spring will try to render the response type as name/value for "view" and try to resolve and render that view as "response_value.jsp". e.g, if return type is "Hello" (String) then spring will look for "Hello.jsp" file.
     @GetMapping("/{id}")    // URL path variable can be anywhere in the URL path.
-    public ResponseEntity<PaymentResponse> getPaymentById(@PathVariable Long id // This also works with the initBinder method. Extracts values from URL path for controller param binding. Case-sensitive.
+    public ResponseEntity<PaymentResponse> getPaymentById(@PathVariable Long id // This also works with the initBinder method. Extracts values from URL path for controller param binding. Case-sensitive. (name|value = "...", required=true(default))
 //    , @RequestParam ("paramName") String firstName  // ([name=]"...") -- For multiple params multiple @RequestParams are used as method parameters. "name" should match exactly with the params in the URL mentioned after "?" and as key-value pair(s) separated by "&". Default type rendered as String. We can also mention primitive types. For Enums, we need to manually bind them with values. For custom object types, we use Property Editor where we define custom logics for type casting, operations, mappings, etc. before assigning it to the req param variable. For this, we can use @InitBinder tag over a method.
 
 //    , @RequestBody CustomDTOClass customDTOClassObject    // Bind HTTP request body typically JSON to controller method param
@@ -80,7 +80,7 @@ public class PaymentController {
     }
 
     /**
-     * 4xx(client need to pass correct req to server=business logic fails); 400(Bad Request=get post patch delete=not details not received); 401(Unauthorized=get post patch delete=resource authentication fails); 403(Forbidden=get post patch delete=only admin accessed but client not allowed); 404(not found=get patch delete); 405(Method Not Allowed=get post patch delete=dispatcher servlet might throw this error as control not reach to the controller); 422(Un-processable Entity=get post patch delete=app bussiness logic failure=eg, country is not supported); 429(Too Many Requests= get post patch delete=eg, rate limiting per user); 409(Conflict=patch delete post=eg. prev req is already in progress hence we put lock on it to accept other, until current completes.)
+     * 4xx(client need to pass correct req to server=business logic fails); 400(Bad Request=get post patch delete=not details not received); 401(Unauthorized=get post patch delete=resource authentication fails); 403(Forbidden=get post patch delete=only admin accessed but client not allowed); 404(not found=get patch delete); 405(Method Not Allowed=get post patch delete=dispatcher servlet might throw this error as control not reach to the controller); 422(Un-processable Entity=get post patch delete=app business logic failure=eg, country is not supported); 429(Too Many Requests= get post patch delete=eg, rate limiting per user); 409(Conflict=patch delete post=eg. prev req is already in progress hence we put lock on it to accept other, until current completes.)
      */
 
     /**

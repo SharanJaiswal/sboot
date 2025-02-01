@@ -13,11 +13,11 @@ public class PaymentService {
     Dependency injection need: If 2 classes are tightly coupled, then changes in dependency class will impact the dependent class. eg., If dependency class becomes interface, then in dependent class original object creation code will fail.
     So, it is breaking the dependency inversion principle of SOLID where dependent class depends on concrete implementation. It should depend on abstraction.
     Dependency can be injected using constructor of dependent class, by passing the object of concrete implementation class of dependency into interface type ref-var in dependent class; or by any method.
-    But this step can also be managed by spring, making it loosely coupled. So, dependency object is looked in IoC container. If ot found, then created, managed by spring, injected.
-    Spring uses reflection to look iteratively one-by-one all the fields with @Autowired and inject its dependency. Spring @Autowired do not work on immutable(final) fields, if its value has not been initialized.
-    But, if its initialized with "null" or any object, then since reflection came into picture and it doesn't care about immutability, it'll replace the existing referencing value with auto-injected bean.
+    But this step can also be managed by spring, making it loosely coupled. So, dependency object is looked in IoC container. If it found, then created, managed by spring, injected.
+    Spring uses reflection to look iteratively one-by-one all the fields and methods with @Autowired and inject its dependency. Spring @Autowired do not work on immutable(final) fields, if its value has not been initialized.
+    But, if it's initialized with "null" or any object, then since reflection came into picture, and it doesn't care about immutability, it'll replace the existing referencing value with auto-injected bean.
 
-    In cases where a class has @Autowired dependency, and that former class is initialized via "new" keyword, then in such cases former class won't auto-inject dependency because it happens by spring, not by user defined code, throwing NPE.
+    In cases where a class has @Autowired dependency, and that former class is initialized via "new" keyword, then in such cases former class won't auto-inject dependency because it happens by spring, not by user defined code, throwing NPE. To avoid this, define mandatory parameterized constructor with all dependency types.
     Creating bean of autowired attributes becomes difficult during unit testing. So, using reflection, via @Mock private DependencyClass dependecyMockObj; @InjectMock DependentClass dependentClassObject; helps to achieve this.
 
     @Autowired(required = true|false)   // w/o quotes, w/o key as 'value', default is true. It tells spring app that if required is true means spring should have it injected in any case, false means if object is not created or injected then proceed w/o injection.
@@ -26,8 +26,8 @@ public class PaymentService {
     Second example can also be achieved using @Profile tag but use @Conditio.... tag if possible in cases where single decision doesn't need to be made based on environment of application.
 
     We can also use @Autowired over a setter method with any name with void return type, accepting object to be injected, and setting the param object to dependency reference variable of the dependent class; setter fully managed by spring.
-    This case using setters is useful when we want to auto-inject a default object to dependent fields of a dependent class, also when we want change the dependency at runtime using defined code as we can also call these setters manually.
-    This also helps to get rid of @InjectMocks and @Mocks. But, only disadvantage is that we cannot make the dependent attributes immutable, if we are using simple non-synchronised setter w/o reflection.
+    This case using setters is useful when we want to auto-inject a default object to dependency fields of a dependent class, also when we want change the dependency at runtime using defined code as we can also call these setters manually.
+    This also helps to get rid of @InjectMocks and @Mocks. But, only disadvantage is that we cannot make the dependency attributes immutable, if we are using simple non-synchronised setter w/o reflection.
     Object injection using setter can create readability and maintainability issues as per standards where objects should be created at start, if possible.
 
     Instead of simply putting @Autowired over a dependent attribute of dependent class, we can put this tag over dependent class constructor with params including all|few dependent attributes and set the values of these object params to corresponding required dependent attributes.
@@ -49,10 +49,12 @@ public class PaymentService {
     1. Annotate one of the concrete implementation class of interface with @Primary tag to resolve the decision over confusion.
     2. put @Qualifier("objectName_X") over each concrete class implementation, and then put @Qualifier("objectName_X") over autowired dependent dependency with the qualifier name to which precedence should be given.
     But second way is violating the dependency inversion principle, as we are hardcoding the type of object to be injected. This could be resolved in 2 ways:
-        A. declare all autowired reference variables of INTERFACE type with qualifier for every concrete implementation with different reference name. Now, in HTTP request, put boolean value as a decider req param to pick specific injected dependency among all.
+        A. declare and inject all autowired reference variables of INTERFACE type with each qualifier for every concrete implementation with different reference name, ie, inject all concrete implementation in a class. Now, in HTTP request, put boolean value as a decider req param to pick specific injected dependency among all.
         B. using configuration class to create bean dynamically using property value. We will not put @Component over any confusing concrete implementation of interface, but like this in @Bean annotated object supplier method:
             @Bean
             public InterfaceType createInterfaceTypeObject (@Value("${prop.from.appOrInlineLiteralsOrEnvVars}" | "false") boolean boolValue) { if (boolValue) { // pick and return concrete class 1; } else { // pick and return concrete class 2; } }
+
+    @Value used to inject values from various sources like env var, property file, inline vars, etc.
      */
     @Autowired
     PaymentRepository paymentRepository;

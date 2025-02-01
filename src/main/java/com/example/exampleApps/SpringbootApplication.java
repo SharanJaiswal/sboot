@@ -7,6 +7,7 @@ import com.example.exampleApps.freeCodeCamp.user.UserHttpClient;
 import com.example.exampleApps.freeCodeCamp.user.UserRestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -22,17 +23,22 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
 @SpringBootApplication
-@ComponentScan(basePackages = "com.example.exampleApps")	// basePackages key is optional. This whole line default and hence redundant because scanning by default starts from level where Application file is present.
-//@EnableTransactionManagement	// this optional annotation used with JPA and must be at the top of this class to enable declarative transaction in this app, so that wherever @Transactional is used, it'll work as expected. Otherwise, in absence of it, there is a high chance that @Transactional annotation will not work.
+@ComponentScan(basePackages = "com.example.exampleApps")	// basePackages key is optional. This whole line default and hence redundant because scanning by default starts from level where Application file is present. Multiple packages  must be in {"","","",...}
+//@EnableTransactionManagement	// this optional annotation used with transaction management and must be at the top of this class to enable declarative transaction in this app, so that wherever @Transactional is used, it'll work as expected. Otherwise, in absence of it, there is a high chance that @Transactional annotation will not work.
 public class SpringbootApplication {
 
 	// logger - LoggerFactory gives Logger object for a given class. We are making it private static final because we don't want it to get accessed and change its reference.
 	private static final Logger LOG = LoggerFactory.getLogger(SpringBootApplication.class);
 
-//	@Autowired
-	// This annotation cannot be local to any method. Its scope should be defined at class level.
+//	@Autowired	// This annotation cannot be local to any method, except setters. Its scope should be defined at class level.
+	// Avoid using Field injection, as this bean might not be available in the IoC. In that case, null will be injected, making app prone to NPE.
 	static WelcomeMessage welcomeMessage1;
 
+	// Avoid using setter injection also.
+
+	// Always use constructor injector, which makes sure that dependencies are injected only when its objects are present in IoC. Also, final attributes will not be overridden.
+	@Autowired	// In case of single constructor class it's redundant to write @Autowired, container will try to inject the class dependency (constructor params).
+	// In case of constructor injection in multi-constructor class, we need to explicitly mention @Autowired over that constructor which will be used to inject dependencies, mentioned as object param.
 	public SpringbootApplication(WelcomeMessage welcomeMessage) {
 		SpringbootApplication.welcomeMessage1 = welcomeMessage;
 	}
@@ -54,6 +60,9 @@ public class SpringbootApplication {
 
 		LOG.info("Your application has successfully started!!!");
 
+		System.out.println(welcomeMessage1);	// same as 3
+		System.out.println(welcomeMessage2);	// different from 1 and 3
+		System.out.println(welcomeMessage3);	// same as 1
 	}
 
 
@@ -75,7 +84,7 @@ public class SpringbootApplication {
 	CommandLineRunner runner (RunRepositoryJdbc runRepositoryJdbc, UserRestClient restClient, UserHttpClient httpClient) {	// we are establishing a dependency injection of runRepositoryJdbc when Bean of CommandLineRunner gets created in application context.
 		return args -> {
 			Run run = new Run(1, "First Run", LocalDateTime.now(), LocalDateTime.now().plus(1, ChronoUnit.HOURS), 5, Location.OUTDOOR, null);
-			LOG.info("Run: " + run);
+			LOG.info("From CommandLineRunner - Run: " + run);
 
 			// Also, If we want to insert data into the DB as soon as application gets started, we can insert this Run object bean inside the DB, apart from inserting it from data.sql
 			runRepositoryJdbc.create(run);

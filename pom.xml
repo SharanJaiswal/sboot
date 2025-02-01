@@ -62,15 +62,15 @@
 			<artifactId>spring-boot-starter-aop</artifactId>
 		</dependency>
 
-<!--				<dependency>-->
-<!--					<groupId>org.springframework.boot</groupId>-->
-<!--					<artifactId>spring-boot-starter-jdbc</artifactId>-->
-<!--				</dependency>-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
 
-<!--				<dependency>-->
-<!--					<groupId>org.springframework.boot</groupId>-->
-<!--					<artifactId>spring-boot-starter-data-jdbc</artifactId>-->
-<!--				</dependency>-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jdbc</artifactId>
+		</dependency>
 
 		<!--		Database driver is below. While using JPA and not directly JDBC, if we change the DB source, we only need to change this dependency and DB access object in code-->
 		<dependency>
