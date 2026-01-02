@@ -87,10 +87,10 @@
         </dependency>
 
 <!--		This is for adding JPA txn mgr @Transactional annotation and JPA dependencies in the project directly, if we are not doing it the semi-hard way-->
-<!--		<dependency>-->
-<!--			<groupId>org.springframework.boot</groupId>-->
-<!--			<artifactId>spring-boot-starter-data-jpa</artifactId>-->
-<!--		</dependency>-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
 
 <!-- Below, docker compose will look for all the dependencies in this file and will create the docker compose file with those services listed. -->
 <!--        <dependency>-->
@@ -118,6 +118,14 @@
 			<version>${junit.jupiter.version}</version>
 			<!--			We don't want to include this library in build stage. And there are many values.-->
 			<scope>test</scope>
+		</dependency>
+
+<!--		LOMBOK -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.30</version>
+			<scope>provided</scope>
 		</dependency>
 
 	</dependencies>

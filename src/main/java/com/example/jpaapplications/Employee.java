@@ -11,10 +11,14 @@ import java.util.List;
 @NamedQuery(query = "select e from Employee e where e.id < :eyedee order by e.name", name = "emp name asc") // this can be used more than 1 times over entity with >=JAVA11
 public class Employee {
 
-    @Id // could be any primitive non-floating data type like char,byte,int,long,short and their wrapper types + String. Avoid using 'long' due to its precision issue.
+    @Id // makes col PK as every table needs PK. Applied only on one col in a table. could be any primitive non-floating data type like char,byte,int,long,short and their wrapper types + String. Avoid using 'long' due to its precision issue.
 //    @Column(name = "") and many other important key value pairs are also present
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // SEQUENCE:sequence of value managed by DB. TABLE: way in which DB creates one table and manages it. AUTO:default - selects DB preferred way automatically
-    private int id; // primitive dta types has respective default value in java if we don't set it from here to insert, but DB can allow these attributes to be null.
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "optional_attr_but_should_match_with_name_below_emp_seq")
+    // IDENTITY: auto-increment value. SEQUENCE:sequence of value managed by DB. TABLE: dont_prefer - way in which DB creates one table and manages it. AUTO:default - selects DB preferred way automatically. Works only with single column primary key.
+    // GENERATE SEQUENCE user_seq INCREMENT BY 25 START WITH 100 MAXVALUE 9999; [CYCLE|NOCYCLE]
+    @SequenceGenerator(name = "emp_seq", sequenceName = "db_seq_name", initialValue = 100, allocationSize = 5)
+    // name is very local to this class, which is mapped to sequenceName which is scoped to DB (picks existing from DB or creates if absent. Cannot define steps here, for that prefer defining sequence in DB itself and then use that here.). allocationSize is for cached amount
+    private int id; // primitive data types has respective default value in java if we don't set it from here to insert, but DB can allow these attributes to be null.
     private String name;
 
     @Column(unique = true, nullable = false, updatable = false)    // and many other constraints

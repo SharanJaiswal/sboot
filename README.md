@@ -67,3 +67,5 @@ Critical section: code segment where shared resources are being accessed and mod
 
 
 https://youtu.be/_Tby7sRA4hs?si=sw9zdr3f38WSn6nJ
+
+

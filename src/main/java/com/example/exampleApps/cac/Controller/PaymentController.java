@@ -57,6 +57,7 @@ public class PaymentController {
 
         // return the response DTO
 //        return ResponseEntity.ok(payment);
+        ResponseEntity.noContent().build();   // ignore this, as this is just for knowledge purpose for sending certain HTTP status. TRY like this also.
         return ResponseEntity.status(HttpStatus.OK).headers(httpHeaders).body(payment);  // .header()* ... .andManyOtherResponseEntities().body() {body should be at last - Builder Design Pattern}
         // ResponseEntity represents the entire HTTP response including headers, status, actual response, etc. It is return type of every method of controller class as ResponseEntity<ActualResponseDTO> .
         // When we use @RestController, springboot internally creates ResponseEntity<ActualResponseDTO> object as return type of controller method whose return type is simple ActualResponseDTO w/o ResponseEntity wrapping. So no need for this when using @RestController. But in case of using @Controller we must use it, otherwise spring will start to look for the "valueofReturnedObject.jsp" view file. For this reason we must use @ResponseBody if we are not using ResponseEntity<> while using @Controller tag.
