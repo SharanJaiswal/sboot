@@ -1,0 +1,123 @@
+SPRING MVC (for web applications and RESTful APIs) OR SPRING FRAMEWORK (for general purpose backend applications) REQUEST FLOW // both are somewhat similar.
+
+
+
+              ------------------------------------        ------------------ ==> 1. Choose the controller  ---->               |Uses Handler Mapping|
+i/p req ====> |                                  |        |   internally   |
+              |         SERVICE CONTAINER        | =====> | maintained.    | ==> 2. Create instance of controller and its dependencies  ---> |IoC|
+              |          (TOMCAT SERVER -        |        |  DISPATCHER.   |                                                          |-------------|
+              |  WE HAVE TO DEPLOY OUR APP HERE  |        |  SERVLET CLASS,| ==> 3. Invokes the corresponding Controller Method ----> | CONTROLLER  |
+              |  AS ITS NOT DONE AUTOMATICALLY   |        |  aka, FIRST    |                                                          |invoke corres|
+o/p resp <=== |     WAR app is deployed here)    | <===== |  CONTROLLER    |                                                          |API method   |
+              ------------------------------------        ------------------ <== 4. Response                                    <---- |-------------|
+
+
+================================================================================================================================================
+================================================================================================================================================
+
+// CONTROLLER CLASS //
+
+@Controller
+@RequestMapping("/demo")
+public class DemoController {
+    @Autowired
+    private DemoService demoService;
+
+    @GetMapping("/firstendpoint")
+    public String firstEndpoint() {
+        // do something
+        return demoService.getDetails();
+    }
+}
+
+
+================================================================================================================================================
+================================================================================================================================================
+
+
+-> When request comes to servlet container it takes request pattern and sends it to dispatcher servlet class (which might be internally maintaining Web.xml file).
+-> Dispatcher servlet class then resolves request to invoke certain controller class and its method using handler mapping.
+-> The controller class instance is created (as per object creation requirements) after its dependencies are created and injected using IoC (Inversion of Control).
+-> Further Controller instance method is invoked to handle the request of certain HTTP method present in request and generate a response.
+-> The response is then sent back to the client. The controller class can use the request and response objects to read data from the request and write data to the response.
+-> The controller class can also use the request and response objects to set headers, cookies, and other information in the response. 
+-> The controller class can also use the request and response objects to forward the request to another controller or JSP page. 
+-> The controller class can also use the request and response objects to include content from another controller or JSP page in the response.
+
+
+================================================================================================================================================
+================================================================================================================================================
+
+// pom.xml FILE OR build.gradle  OR any build configuration FILE  //
+
+
+-> pom.xml file is used by Maven to build our application and manage its dependencies. We can also use pom.xml file to configure our application, such as setting the Java version, specifying the packaging type. The pom.xml file is an XML file that follows a specific structure and schema defined by Maven.
+-> pom.xml file needs to be manually written and maintained by us. We can also use pom.xml file to define our own custom properties and variables that can be used throughout our application. We can also use pom.xml file to define our own custom build plugins that can be used to automate certain tasks during the build process. We can also use pom.xml file to define our own custom profiles that can be used to build our application in different environments. We can also use pom.xml file to define our own custom repositories that can be used to download dependencies from different sources. We can also use pom.xml file to define our own custom distribution management settings that can be used to deploy our application to different servers. We can also use pom.xml file to define our own custom reporting settings that can be used to generate reports about our application. We can also use pom.xml file to define our own custom site settings that can be used to generate a website for our application. We can also use pom.xml file to define our own custom plugin settings that can be used to configure the behavior of plugins used in our application.
+-> The dependencies in pom.xml file must contain the correct version of the Spring framework and other libraries that we are using in our application to ensure that our application works correctly.
+-> For build.gradle file,which can do all the pom.xml thing, can use the Gradle build tool to build our application and manage its dependencies. We can also use build.gradle file to configure our application, such as setting the Java version, specifying the packaging type. The build.gradle file is a Groovy or Kotlin DSL file that follows a specific structure and syntax defined by Gradle.
+
+
+================================================================================================================================================
+================================================================================================================================================
+
+// Config class FILE // can be of any name
+
+@Configuration
+@EnableWebMvc
+@ComponentScan(basePackages = "com.example.demo")   // tells spring to scan the specified package for components, such as controllers, services, and repositories. This allows spring to automatically detect and register these components in the application context.
+public class AppConfig {
+    // add configurations here if required
+}
+
+
+================================================================================================================================================
+================================================================================================================================================
+
+
+// Dispatcher servlet class FILE // can be of any name
+
+public class MyApplicationInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
+    @Override
+    protected Class<?>[] getRootConfigClasses() {
+        return new Class[] { AppConfig.class };   // returns the configuration class that contains the bean definitions for the application context. This allows spring to initialize the application context with the specified configuration class.
+    }
+
+    @Override
+    protected Class<?>[] getServletConfigClasses() {
+        return null;   // returns null because we are not using any additional servlet configuration classes. If we were using additional servlet configuration classes, we would return an array of those classes here.
+    }
+
+    @Override
+    protected String[] getServletMappings() {
+        return new String[] { "/" };   // returns the URL pattern that the dispatcher servlet will be mapped to. This allows spring to route incoming requests to the appropriate controller methods based on the specified URL pattern.
+    }
+}
+
+
+================================================================================================================================================
+================================================================================================================================================
+
+
+Benefit of Spring Framework over Servlet:
+
+1. Removal of web.xml: (A) single file over the time it becomes too big and hence difficult to manage and comprehend by humans. (B) Spring introduces annotations based configurations.
+2. IoC - Inversion of Control: It is a flexible way to manage object dependencies and its lifecycle through dependency injection. Strictly, Dependency injection is an implementation of IoC, but in general, both terms are used interchangeably. Spring IoC container manages the object lifecycle and its dependencies. It is a design pattern which allows us to remove hard-coded dependencies (tight-coupling) and make our application loosely coupled, extendable and maintainable. E.g., using @Autowired, @Components etc.
+3. Unit testing is much harder in servlets, mocking is not easy because of tight coupling of dependency classes whose objects are managed by servlets. Spring dependency injection removes this tight coupling and helps mocking dependency classes and their objects, making unit testing easier.
+4. Difficult to manage REST APIs because handling different HTTP methods, req params, path mapping make code a little difficult to understand. Spring MVC provides an organised approach to handle the request and it's easy to build RESTful APIs. We can add multiple @GetMapping, @PostMapping, @PutMapping, @DeleteMapping, etc. over different methods of a controller class to handle different HTTP methods. We can also use @RequestParam, @PathVariable, etc. to handle request parameters and path variables. Unlike servlets where path info is used to segregate different endpoints, in spring we can use different mapping annotations to handle different endpoints. This makes code more readable and maintainable.
+5. Easy integration with other technologies like hibernate, adding security, etc.
+6. Allows developers to choose different combination of technologies and framework of choice. Eg., Junit|Mockito for unit testing; Hibernate|JDBC|JPA; Asynchronous programming; caching; messaging; security, etc.
+
+
+================================================================================================================================================
+================================================================================================================================================
+
+DEMERITS of Spring (MVC) Framework over Spring Boot:
+
+1. If in future if any other version of any dependecy is required, then we have to manually change the version in pom.xml file. This can lead to version conflicts and compatibility issues where we need to. manually update versions of other conflicting and non-compatible dependencies in build file. Dependencies version should be compatibale with each other and with the Spring framework version. This can be a tedious task and can lead to errors if not done correctly.
+2. Spring Boot provides a lot of starter dependencies that are compatible with each other and with the Spring framework version. This makes it easier to manage dependencies and reduces the risk of version conflicts and compatibility issues.
+3. Spring framework requires a lot of boilerplate code and configuration, which can be time-consuming and error-prone. Spring Boot provides a lot of default configurations and auto-configuration, which reduces the amount of boilerplate code and configuration required. No need for separate configuring "DispatcherServlet", "AppConfig", "EnableWebMvc", "ComponentScan", etc. Spring Boot add them internally by default. E.g., @SpringBootApplication annotation is a combination of @Configuration, @EnableAutoConfiguration, and @ComponentScan annotations. This makes it easier to develop and maintain Spring applications.
+@ComponentScan in Spring boot assumes base package same as the package of the class annotated with @SpringBootApplication.
+SPRING BOOT HAVE OPINIONATED NATURE, a.k.a. "Convention over Configuration" i.e., default configuration. But if required, they can be overridden.
+4. EMBEDDED SERVLET CONTAINER: Spring Boot provides an embedded servlet container (like Tomcat, Jetty, or Undertow) that allows us to run our application as a standalone Java application without the need for a separate web server. This makes it easier to auto-deploy and run Spring applications.
+5. We can also package our application as a JAR file and run it using the java -jar command. This makes it easier to distribute and deploy Spring applications.
+6. Faster application devevlopment and deployment, as we can run our application directly from the IDE without the need for a separate web server. This makes it easier to test and debug Spring applications.

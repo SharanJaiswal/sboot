@@ -22,10 +22,11 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
+// Below 2 lines can be written in preferred way as @SpringBootApplication(scanBasePackages = "com.example.exampleApps"). For multiple values, RHS must be as {"","",...,""}
 @SpringBootApplication
-@ComponentScan(basePackages = "com.example.exampleApps")	// basePackages key is optional. This whole line default and hence redundant because scanning by default starts from level where Application file is present. Multiple packages  must be in {"","","",...}
+@ComponentScan(basePackages = "com.example.exampleApps")	// To override the basePackages starting point; basePackages key is optional. This whole line is default and hence redundant because scanning by default starts from level where Application file is present. Multiple packages  must be in {"","","",...} format
 //@EnableTransactionManagement	// this optional annotation used with transaction management and must be at the top of this class to enable declarative transaction in this app, so that wherever @Transactional is used, it'll work as expected. Otherwise, in absence of it, there is a high chance that @Transactional annotation will not work.
-public class SpringbootApplication {
+public class SpringbootApplication {	// It can be of any name
 
 	// logger - LoggerFactory gives Logger object for a given class. We are making it private static final because we don't want it to get accessed and change its reference.
 	private static final Logger LOG = LoggerFactory.getLogger(SpringBootApplication.class);
@@ -45,12 +46,13 @@ public class SpringbootApplication {
 
 	public static void main(String[] args) {
 
-		// Original way to run the app
+		// Original way to run the app; Remember its always SpringApplication.run, and NOT SpringbootApplication.run.   SpringApplication is in package org.springframework.boot already, ie, part of SBoot app.
 //		SpringApplication.run(SpringbootApplication.class, args);
 
-		ConfigurableApplicationContext context = SpringApplication.run(SpringbootApplication.class, args);
-//		context.close();	// closes application DO NOT DO THIS.
-		WelcomeMessage welcomeMessage3 = (WelcomeMessage) context.getBean("welcomeMessage");	// Internally, bean name is in camelCase
+		ConfigurableApplicationContext context = SpringApplication.run(SpringbootApplication.class, args);		// context is only sent when app is successfully booted up, which means at this point IoC has minimum number of required beans in Spring Container|IoC Container to manage them for application.
+//		context.close();	// destroys all beans, shuts down embedded web server, closes application DO NOT DO THIS for Web APIs. It can be helpful for short-lived scripts or cmd-line jobs (skip now, learn later)
+
+		WelcomeMessage welcomeMessage3 = (WelcomeMessage) context.getBean("welcomeMessage");	// Discouraged. "Service Locator", aka, "BeanFactory Lookup". Internally, bean name is in camelCase. Use bean injection methods instead if this getBean is used for injecting dependency in a class.
 		System.out.println(welcomeMessage3.getWelcomeMessage());
 
 		var welcomeMessage2 = new WelcomeMessage();
@@ -65,6 +67,10 @@ public class SpringbootApplication {
 		System.out.println(welcomeMessage3);	// same as 1
 	}
 
+
+	/**
+	 * GO BACK NOW TO README IF CAME FOR THE FIRST TIME, AS IT IS ENOUGH. REST ALL WILL BE COVERED LATER.
+	 */
 
 	@Bean	// Used where we provide (external) configuration details to select the way to create an object of class required.
 	UserHttpClient userHttpClient() {

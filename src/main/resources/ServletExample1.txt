@@ -1,0 +1,94 @@
+// DemoServlet1.java FILE //
+
+@WebServlet("/demoservletone/*")
+public class DemoServlete1 extends HttpServlet {
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) {
+        String reqPathInfo = request.getPathInfo();
+
+        if (reqPathInfo.equals("/")) {
+            // do something
+        } else if (reqPathInfo.equals("/firstendpoint")) {
+            // do something
+        } else if (reqPathInfo.equals("/secondpoint")) {
+            // do something
+        }
+    }
+
+// Observe that path info can be same for all the methods. So, we can use the same path info for all the methods. The HTTP request method (GET, POST, PUT, DELETE) is used to determine which method to call in the servlet. The path info is used to determine which endpoint to call in the servlet. The path info is the part of the URL that comes after the servlet mapping. For example, if the servlet mapping is "/demoservletone/*" and the URL is "/demoservletone/firstendpoint", then the path info is "/firstendpoint". The path info can be used to determine which endpoint to call in the servlet.
+
+    @Override
+    protected void doPut(HttpServletRequest request, HttpServletResponse response) {
+        String reqPathInfo = request.getPathInfo();
+
+        if (reqPathInfo.equals("/")) {
+            // do something
+        } else if (reqPathInfo.equals("/firstendpoint")) {
+            // do something
+        } else if (reqPathInfo.equals("/secondpoint")) {
+            // do something
+        }   // if web.xml contains url-pattern "/demoservlet/firstendpoint" and "/demoservlet/secondpoint", and not /demoservletone/* , then, path info will be null for these 2.
+    }
+}
+
+
+================================================================================================================================================
+================================================================================================================================================
+
+/**
+  * One servlet file can handle only one get,put,post,delete method. Several servlet are managed by "Web.xml" file
+  */
+// When request comes to servlet container it takes request pattern and maps it to the corresponding servlet class using Web.xml. The servlet class is then invoked to handle the request of certain HTTP method present in request and generate a response. The response is then sent back to the client. The servlet class can use the request and response objects to read data from the request and write data to the response. The servlet class can also use the request and response objects to set headers, cookies, and other information in the response. The servlet class can also use the request and response objects to forward the request to another servlet or JSP page. The servlet class can also use the request and response objects to include content from another servlet or JSP page in the response.
+
+// WEB.XML FILE //
+
+<!-- MY FIRST SERVELET CONFIGURATION BELOW -->
+<servlet>   // servlet tag is used to define a servlet in the web.xml file
+    <servlet-name>DemoServlet1</servlet-name>   // servlet name is used to identify the servlet in the web.xml file
+    <servlet-class>DemoServlet1</servlet-class>    // servlet class is used to identify the servlet class in the web.xml file
+</servlet>
+
+<servlet-mapping>   // servlet-mapping tag is used to map a servlet to a URL pattern in the web.xml file
+    <servlet-name>DemoServlet1</servlet-name>   // servlet name is used to identify the servlet in the web.xml file where all incoming requests of below url-patterns are mapped to the corresponding servlet class
+    <url-pattern>/demoservletone</url-pattern>   // url pattern is used to map the servlet to a URL pattern in the web.xml file. Here, path info is not used because the servlet is mapped to a specific URL pattern. The servlet will handle requests to "/demoservletone" only. The servlet will not handle requests to "/demoservletone/firstendpoint" or "/demoservletone/secondpoint" because the servlet is not mapped to those URL patterns.
+    <url-pattern>/demoservletone/*</url-pattern>    // /demoservletone/* is a wildcard mapping that allows the servlet to handle requests to any URL that starts with "/demoservletone/". The servlet will handle requests to "/demoservletone/firstendpoint" and "/demoservletone/secondpoint" as well as any other URL that starts with "/demoservletone/" are redundant because the servlet is already mapped to handle all requests that start with "/demoservletone/".
+    <url-pattern>/demoservletone/firstendpoint</url-pattern>    // redundant because the servlet is already mapped to handle all requests that start with "/demoservletone/".
+    <url-pattern>/demoservletone/secondpoint</url-pattern>  // redundant because the servlet is already mapped to handle all requests that start with "/demoservletone/".
+
+    // for path info, we can use the same path info for all the methods. The HTTP request method (GET, POST, PUT, DELETE) is used to determine which method to call in the servlet. The path info is used to determine which endpoint to call in the servlet. The path info is the part of the URL that comes after the servlet mapping. For example, if the servlet mapping is "/demoservletone/*" and the URL is "/demoservletone/firstendpoint", then the path info is "/firstendpoint". The path info can be used to determine which endpoint to call in the servlet.
+</servlet-mapping>
+
+
+<!-- MY SECOND SERVELET CONFIGURATION BELOW -->
+<servlet>
+    <servlet-name>DemoServlet2</servlet-name>
+    <servlet-class>DemoServlet2</servlet-class>
+</servlet>
+
+<servlet-mapping>
+    <servlet-name>DemoServlet2</servlet-name>
+    <url-pattern>/demoservlettwo/*</url-pattern>
+</servlet-mapping>
+
+
+================================================================================================================================================
+================================================================================================================================================
+
+
+                 ------------------------------------   =====> 1. Chooses corresponding servlet class using based on request pattern ======> |Web.xml|
+i/p req ====>    |      SERVLET CONTAINER           |                                                                                                     _________________
+o/p resp <====   |TOMCAT - Manual Deployment Of App |   =====> 2. Invokes corresponding servlet class to handle the request and generate a response ----> |               |
+                 ------------------------------------  <=====  3. Response                                                                          <---- | SERVLET CLASS |
+                                                                                                                                                          |---------------|
+
+
+================================================================================================================================================
+================================================================================================================================================
+
+
+DEMERITS OF SERVLETS:
+
+1. Servlets are not suitable for large applications because they can become complex and difficult to manage as the application grows. As the number of servlets increases, it becomes harder to maintain and update the code. This can lead to increased development time and costs. There is just one Web.xml file for the entire application, so it can become cluttered and difficult to manage as the number of servlets increases.
+2. A lot of sequential and precedence order of filtering happens in the web.xml file, which can lead to performance issues and increased complexity. The order of the servlet mappings in the web.xml file can affect the behavior of the application, and it can be difficult to determine the correct order of the mappings. This can lead to unexpected behavior and bugs in the application.
+3. Servlets are not suitable for applications that require a lot of dynamic content generation because they can become slow and inefficient. Servlets are designed to handle requests and generate responses, but they are not optimized for generating dynamic content. This can lead to slow response times and increased server load, which can affect the performance of the application.

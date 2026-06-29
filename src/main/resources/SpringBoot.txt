@@ -1,0 +1,69 @@
+Dispatcher Servlet is hidden in Spring Boot and is auto-configured by default. It is not required to be configured manually. It is automatically configured by Spring Boot based on the dependencies present in the classpath. It is automatically configured to handle requests and generate responses based on the request pattern and the corresponding controller class.
+
+================================================================================================================================================
+================================================================================================================================================
+
+// build FILE //    Does not require version as it ato resolves the dependecny version conflicts and compatibility issues.
+
+================================================================================================================================================
+================================================================================================================================================
+
+// Application.java file // can be of any name
+
+@SpringBootApplication  // contains @Configuration, @EnableAutoConfiguration, and @ComponentScan annotations. It is a combination of 3 annotations. It is used to mark the main class of a Spring Boot application. It is used to enable auto-configuration, component scanning, and configuration in a Spring Boot application.
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+
+================================================================================================================================================
+================================================================================================================================================
+
+// MyController.java file // can be of any name
+
+@RestController  // contains @Controller and @ResponseBody annotations. It is a combination of 2 annotations. It is used to mark the class as a controller in a Spring Boot application. It is used to handle HTTP requests and return HTTP responses in a Spring Boot application.
+@RequestMapping("/api")  // contains @RequestMapping annotation. It is used to map HTTP requests to handler methods in a Spring Boot application. It is used to handle HTTP requests and return HTTP responses in a Spring Boot application.
+public class MyController {
+    @GetMapping("/hello")  // contains @GetMapping annotation. It is used to map HTTP GET requests to handler methods in a Spring Boot application. It is used to handle HTTP GET requests and return HTTP responses in a Spring Boot application.
+    public String hello() {
+        return "Hello, World!";
+    }
+}
+
+================================================================================================================================================
+================================================================================================================================================
+
+
+LAYERED ARCHITECTURE in Spring Boot:
+
+Incoming req payload gets mapped to our applications application layer RequestDto at controller layer, and ResponseDto gets mapped to outgoing response payload at controller layer. Hence, any schema gets changes in payload, we need to change only the RequestDto and ResponseDto classes. No need to change the controller class, service class, repository class, and database schema. 
+Utility classes are used to perform common tasks like validation, encryption, decryption, etc. which can be used across the application.
+Entity classes POJOs are used to map the database tables to Java classes.
+Configuration classes are used to configure the application like properties, database configuration, security configuration, etc.
+
+                        _____         _________         ________         _______________
+                        |DTO|         |UTILITY|         |ENTITY|         |CONFIGURATION|
+                        -----         ---------         --------         ---------------
+                          |               |                 |                   |
+                     ---------------------------------------------------------------------
+                    |    CONTROLLER      |       SERVICE       |      REPOSITORY         |
+CLIENTS   <=======> |      LAYER       <-+->    LAYER        <-+->     LAYER             |
+                    |   (API endpoints)  |  (Business Logic)   |   (Data Access Logic)   |
+                    |                    |                     |                         |
+                    |   @Controller      |     @Service        |     @Repository         |
+                    |   @RestController  |                     |                         |
+                    |                    |                     |                         |
+                    |  /api-endpoints    |  - contains         |  - interacts with DB    |
+                    |                    | business logic      |    of any kind - SQL or |
+                    |                    |                     |    NoSQL, performs CRUD |
+                    |                    |                     |  operations on DB       |
+                    |                    |                     |                         |
+                    |                    |                     |                         |
+                    |                    |                     |                         |
+                    ----------------------------------------------------------------------
+                                                                    ||
+                                                                    ||
+                                                                 /----------\
+                                                                 | DATABASE |
+                                                                 \----------/

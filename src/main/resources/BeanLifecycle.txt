@@ -1,0 +1,37 @@
+Spring Beans: Java objects managed by Spring container (IoC container, contains and manages all beans which get created in them using @Component|@Bean). During the bootup of a Spring application, @ComponentScan and @Configuration work together to populate the Spring IoC container, but they operate differently to create application beans.
+
+
+@ComponentScan scans the classpath—starting from the specified package down through all its subdirectories—looking for classes decorated with "stereotype" annotations. When it finds them, it automatically instantiates them as singleton beans in the application context and manages them. Eg: @Component, @Service, @Repository, @Controller/@RestController, @Configuration (YIKESS!!), etc. Internally many have @Component
+
+@Component on a class by default works on "convention over configuration" approach, where a default class constructor is used while constructing singleton bean instance.
+
+A class annotated with @Configuration is itself a Spring bean (because @Configuration is essentially a specialized @Component). However, its primary purpose is not to be a standalone service, but to act as a factory that defines other beans. Inside a @Configuration class, Spring looks for methods annotated with @Bean. When the application boots up, Spring executes these @Bean methods and takes the returned objects, registering them into the IoC container. This is highly useful for:
+a) Creating beans out of third-party library classes (where you cannot simply add a @Component annotation to their source code).
+b) Creating beans conditionally (e.g., executing an if-else block to return different implementations of an interface based on an environment property).
+
+While injecting a bean, spring simply finds a camelCase name equivalent of ClassName whose object should be injected from IoC. @Component over ClassName or @Bean over method returning an object of type ClassName.
+If you have a class marked with @Component and you also explicitly instantiate it in a @Configuration class using a @Bean method, you risk creating duplicates or conflicts unless carefully managed. You can make the problem even more obvious by giving both registrations the same bean name. Though Spring typically prioritizes the @Bean method definition if the bean names match. But don’t define the same thing through both @Component and @Bean unless you really intend to. Also, in case where in @Configuration annotated class, @Bean is over >1 method which return same type ClassName instance, spring creates both bean of same ClassName type but with different name. Its better to provide custom names in such cases to avoid clash at injection point. These given names are called qualifiers, and can be given to any bean creation point. These qualifiers are name given to bean definition, not to the bean itself. Hence, a prototype scoped bean can have 'a qualifier' which can be used to call specific bean generation strategy when bean generated from that same strategy is required at injection point. Qualifiers are useful when there is a conflict at injection point to decide to pick bean as there are more than one bean creation definition|strategy of same type to be injected at injection point. Once bean is injected, the qualifiers work is over.
+
+
+Bean Initialization techniques OR Time of object initialization:
+a) Eagerness(when booting up application, with Scope as singleton, default);
+b) Lazy(when needed until another bean injects it or manually fetch it from the context; with scope Prototype; classes or @Bean method or @Configuration class, all with @Lazy annotation initialized - weather it's with @Component or w/o or with any bean initialization annotation).
+If you mark the class as @Lazy but want one specific bean to initialize at startup, you can override the class-level setting by annotating that specific method with @Lazy(false).
+
+
+The Injection Warning:
+One critical detail to keep in mind: if an eagerly-initialized bean depends on a lazily-initialized bean, Spring will be forced to initialize the lazy bean at startup to satisfy the dependency injection. To prevent this, you must apply the @Lazy annotation at the injection point as well. This tells Spring to inject a proxy object instead of the actual bean, deferring the real initialization until a method on the proxy is actually called. So, @Lazy can be annotated over field, over constructor params, over constructor itself, to lazily inject dependency.
+Also, an eagerly initialized bean can be stopped from eagerly injection into certain eagerly initialized dependent bean, by placing @Lazy at injection point. This sometimes is used to break circular dependency.
+
+
+BeanLifecycle::: AppStart -> start IoC container -> resolve dependency injected through constructor, and then Construct Beans and run constructor -> Inject dependency into constructed beans(using reflection - field and setter injection) -> @PostConstruct -> Use Bean -> @PreDestroy -> Bean Destroyed.
+
+
+BEAN SCOPES: Singleton, Prototype, Request, Session, Application
+.Singleton: Default, Only 1 instance eagerly instantiated per IoC|appOf1IoC, @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON) aka @Scope("singleton")-value of enum.
+.Prototype: Lazy initialized everytime, when it is "actually" needed, @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE) aka @Scope("prototype")-value of enum.
+.Request: Lazy, new object is created ONCE per request for each HTTP request for all classes which serves this request which are marked as "request" scope, but not all classes which serves this request;
+For eagerly initialized dependent objects, depending on "request" scoped class objects, application startup will fail because no object will be created during dependency injection of classes scoped "request". Add @Scope(value="request", proxyMode=ScopedProxyMode.TARGET_CLASS) over "request" scope classes, if their objects are dependency of eagerly initialized singleton scope classes. This creates a dummy obj and inject it unless any HTTP request hits.
+.Session: Lazy, HTTP session can generally handle multiple HTTP requests. Each session has some default time which we can override it using "servlet.session.expiry" property.
+HttpServletRequest - HttpSession: request.getSession().invalidate(); // to end current http session.
+.Application: Eager, like singleton, but if we want to share an object in multiple IoC running application. Not much used.
