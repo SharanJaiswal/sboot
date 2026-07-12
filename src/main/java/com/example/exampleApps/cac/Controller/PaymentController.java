@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 
-//@Controller // responsible for handling incoming HTTP requests. This will require @ResponseBody annotation tag over every controller method. Not required when @RestController is used.
+//@Controller // responsible for handling incoming HTTP requests. This will require @ResponseBody annotation tag over every controller method. Not required when @RestController is used. Dispatcher servlet (or, Handler Mapping) only consider those classes as controllers which has this annotation.
 @RestController // Composed of @Controller and @ResponseBody etc.
 @RequestMapping("/payments")    // path|value=".../" ,  method=RequestMethod.GET|PUT|POST|DELETE|PATCH|HEAD|OPTIONS|TRACE   -- This can be over methods also but not when @GetMapping(path|value=".../") or any other request method tag is used.
 // @RequestMapping annotation is composed of @Reflective and @Mapping, etc., where @Mapping is used to map the RequestMapping.METHODTYPE provided as second param when over class.
@@ -26,8 +26,8 @@ public class PaymentController {
 
     // This method will get invoked at every invocation of every controller method and perform custom logic.
 //    @InitBinder
-//    protected void initBinder(DataBinder binder) {
-//        binder.registerCustomEditor(String.class, "firstName", new FirstNamePropertyEditor());   // we passed, the return type of the req-param var type, variable name, custom logic over the incoming param.
+//    protected void initBinder(DataBinder binder) {    // any name can be given to method
+//        binder.registerCustomEditor(String.class, "firstName", new FirstNamePropertyEditor());   // we passed, the return type of the req-param var type AFTER THIS PROCESSING, variable name AS MENTIONED EXACTLY AS REQ PARAM, custom logic over the incoming param.
 //        binder.registerCustomEditor(Date.class, "doj", new DatePropertyEditor());   // We've added 2nd editor. THis could be from totally different controller method.
 //
 //        binder.setDisallowedFields("mid-name", "maiden-name");    // case-sensitive - blocks other params even if they are present in the req URL as req param.
@@ -38,7 +38,7 @@ public class PaymentController {
 //    @ResponseBody   // Can be used over classes also. If @Controller is used, then this should be present over every controller resource endpoint method. Not required if @RestController is used, as it is part of it. Tells that return type of method should be serialized to only HTTP response type. If it is not included, then spring will try to render the response type as name/value for "view" and try to resolve and render that view as "response_value.jsp". e.g, if return type is "Hello" (String) then spring will look for "Hello.jsp" file.
     @GetMapping("/{id}")    // URL path variable can be anywhere in the URL path.
     public ResponseEntity<PaymentResponse> getPaymentById(@PathVariable Long id // This also works with the initBinder method. Extracts values from URL path for controller param binding. Case-sensitive. (name|value = "...", required=true(default))
-//    , @RequestParam ("paramName") String firstName  // ([name=]"...") -- For multiple params multiple @RequestParams are used as method parameters. "name" should match exactly with the params in the URL mentioned after "?" and as key-value pair(s) separated by "&". Default type rendered as String. We can also mention primitive types. For Enums, we need to manually bind them with values. For custom object types, we use Property Editor where we define custom logics for type casting, operations, mappings, etc. before assigning it to the req param variable. For this, we can use @InitBinder tag over a method.
+//    , @RequestParam ("paramName") String firstName  // ([name=]"...", [required=[true]|false]) -- For multiple params multiple @RequestParams are used as method parameters. Here, "name" should match exactly with the params in the URL mentioned after "?" and as key-value pair(s) separated by "&". Default type rendered as String. We can also mention primitive types and their corres Wrapper types (int|Integer, float,double,boolean,etc.). For Enums, we need to manually bind them with values. For custom object types, we use Property Editor where we define custom logics for type casting, operations, mappings, etc. before assigning it to the req param variable. For this, we can use @InitBinder tag over a method.
 
 //    , @RequestBody CustomDTOClass customDTOClassObject    // Bind HTTP request body typically JSON to controller method param
     ) {

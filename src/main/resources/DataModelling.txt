@@ -1,0 +1,29 @@
+First find what type of DBs are going to be used in designing, if possible, as this has strong effect on data modeling. E.g., Relational DBs, (ALL OTHERS ARE NOSQL DBS) Document DBs, key-value store, Graph DBs, Wide-Column DBs.
+Then get involved at stage 2 (core-entities) and stage 5 (HLD) of delivery framework.
+At S-2, we just asks what tables are present. At S-5, we then asks what are the cols in those tables and how each are related at DB level, indexes, keys; while serving the API of an app.
+
+- RDBs: Schemas once defined are not flexible to change. MySQL, Postgres, etc.
+- Document DBs: Mongo; where nested data are stored in a JSON or other nested document format. They support flexible schema. Traditionally, they were not supporting joins. Choose this when the schema changes more frequently for data. In such cases, all we need is just to add a key-value pair in the document.
+- KV stores: Generally used as cache like REDIS, which is placed in front of actual DB. It contains the flatted document as VALUE. Suitable for really hot data. Dynamo DB is KV-document store. They are never used as primary DBs ever.
+- Wide-column DBs: Each rows can have completely different cols. Col family is a logical bucket containing few several cols. Catch is, Each rows have same pre-defined cols family but it is not necessary that each rows must have values in each col of col family. If we compare RDBs where missing value for a col contains NULL, here we can skip putting value for few all cols of a given col families. Works best for sparse or evolving data/schema. Also, best where there is partition and then cluster of data happens. SUITABLE FOR WRITE HEAVY, not best for adhoc join queries. Data modeling happens keeping in mind the set of pre-defined queries based on combination of partition and cluster keys, on this DB table, and sometimes data are duplicated among col families for read efficiency. eg, time-series, analytics, append data and run aggregations, event logging, IoT sensor data , telemetry, etc. A wide-column model has two ideas at once: related columns are grouped together logically, and rows are physically distributed and ordered using keys.
+- GraphDBs : data is stored in nodes and edges. In graphs, nodes are connected by edges. A node can be connected to more than 1 node, and that too with same or different edges. Eg, in social media, each node could be different user, comments, post, etc, while edges could be relation like posted, liked, commented, etc. Its rarely used, so rare that this example is not inspired by actual one. ;(
+
+
+
+SCHEMA DESIGN: Based on 3 key factors
+- Data volume - where data lives -> single or distributed
+- Access pattern - How data is queries -> drives indexes and structures
+- Consistency requirements - How strict -> ACID vs Eventual consistency
+
+
+ENTITIES, KEYS, & RELATIONSHIP:
+PK(unique identifier for each record), and FK(for referential integrity). Tables could be Users,Posts,Likes(no PK required),Comments
+
+CONSTRAINTS: non-null, uniqueness, etc.
+
+Normalization: Data lives exactly at one table only. Consistent data  and requires join. Suits best for primary DBs.
+Denormalization: part of data is replicated Can be inconsistent data but faster. Suitable for storing data in cache.
+
+Indexing: makes read faster is queries are pre-known as it drives the index-selection, write a bit slower due to finding a suitable place for placing data that requires some operation overhead.
+
+SHARDING: Data is too large to host on a single DB, then it is distributed among many DBs. And then we decide where to do partitioning on data to select their home data node. EG, if POST table is sharded based on ID among 3 different DBs, then all related data of posts such as COMMENTS table, LIKES table, etc. should be in one DB to avoid cross-shard joins.

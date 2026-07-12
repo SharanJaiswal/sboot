@@ -1,8 +1,8 @@
-!!!! READ THIS AS TEXT FILE. DO NOT USE MARKDOWN RENDERER !!!!
+!!!! READ THIS AS TEXT FILE. DO NOT PASS THIS TO MARKDOWN RENDERER !!!!
 
-Servelet =/= Spring Framework =/= SpringMVC =/= SpringBoot
+Servlet =/= Spring Framework =/= SpringMVC =/= SpringBoot
 
-"SERVLET" is a java class which handles client request, processes it, and return the response. "SERVLET CONTAINERS" are the one which manages servlets. Servlets are at the core of spring and springboot.
+"SERVLET" is a java class which handles client request, processes it, and returns the response. "SERVLET CONTAINERS" are the one which manages servlets. Servlets are at the core of spring and springboot.
 SEE src/main/resources/ServletExample1.txt for more details.
 
 "SPRING FRAMEWORK" is a framework which provides a comprehensive programming and configuration model for modern Java-based enterprise applications. It is built on top of servlets and provides a lot of features like dependency injection, aspect-oriented programming, transaction management, etc.
@@ -40,6 +40,9 @@ SEE src/main/resources/BeanLifecycle.txt for more details.
 ================================================================================================================================================
 package com.example.exampleApps.cac.Controller.PaymentController
 ================================================================================================================================================
+
+SEE src/main/resources/APIDesigning.txt for more details.
+SEE src/main/resources/DataModelling.txt for more details.
 
 @Profile is technically intended for environment separation rather than application specific bean creation. Environments like dev,qa,prod, etc. where certain things varies based on envs like DB credentials, conn-req-session timeouts, URL, ports, throttle values, retry values, etc.
 We put different profiles properties in properties file. eg. application-{profile_x}.property=value. We can put default values in application.properties(default) file. {dev|qa|prod} values in application-{dev|aq|prod}.properties file. If we have different files, then property name can be allowed same in all files, if needed.

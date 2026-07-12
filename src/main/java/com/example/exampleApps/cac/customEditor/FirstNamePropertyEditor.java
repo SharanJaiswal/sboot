@@ -6,7 +6,7 @@ import java.beans.PropertyEditorSupport;
 
 public class FirstNamePropertyEditor extends PropertyEditorSupport {
     @Override
-    public void setAsText(String text) throws IllegalArgumentException {
+    public void setAsText(String text) throws IllegalArgumentException {    // passed argument type is String as all incoming param by default is treated as String
         super.setAsText(text);
         if (text != null && !text.isEmpty()) {
             setValue(text.toUpperCase());

@@ -1,0 +1,138 @@
+================================================================================================================================================
+                                                       * * * * * * * API PROTOCOLS * * * * * * *
+================================================================================================================================================
+
+RestAPI - Representational State Transfer API
+
+HTTP methods are also called verbs.
+/firstwords[/...] is should always be plural noun and is called resource endpoint. Resources are core entities. There shouldn't be action in their name but things as it should be inferred from HTTP verbs. E.g., GET /events/{id}, POST /events/{id}/bookings for creating new booking event.
+DO NOT make something like POST /events/create, because here /create is redundant as practice because method verb POST is already giving idea of creating something.
+
+GET - retrieve data
+POST - creates data and assigns unique ID to each data created, even if same payload is sent multiple times, then multiple rows are created with same data. Its not idempotent. Returns created data.
+PUT - idempotent update/replace, i.e., if for a given row multiple requests are made, then update happens on that exact row, and not on any new row. Creates event if not exists.
+PATCH - partial update resource, e.g., just change of the date, or email, etc. May/Maynot be idempotent. 2 variations: PATCH that says "set email to X" is idempotent, but a PATCH that says "append to list" is not.
+DELETE - removes resource in server. Idempotent : Resource server in same state. Subsequent calls may return 404. First call for existing resource may return 204.
+QUERY -
+
+We want URL as parentresources/{id}/childresources when there is grouping involved, like we want here all data of child tagged with id under parent resource.
+We want URL as childresources?parentresource_id=id when we have already collected data from childresources itself, and as next OPTIONAL ADDITIONAL operation we want to narrow it down in count. Another variant of this request could have simply asked for all "childresources" without query params. Used especially in filtering, sorting, searching, pagination, etc.
+Another use case where it helps when we want childresources under parentresources for multiple ids. If we would have used path param, we had made multiple calls for each IDs, but with query params, we can simply make 1 call as childresources?parentresource_id=id1,id2. This helps in scaling our API gracefully.
+Path Params - specifies which resource we are working with. Used when required to identify the resource. GET /events/{id}
+Query Params - Optional filters. Used when we need to narrowing down the resource pool out of many. GET /events?city=LA&date=2025-01-01&time={}
+Request Body - POST /events [JSON body]
+
+Response status code and body - GET /events -> EVENTS[] with code.
+
+================================================================================================================================================
+
+GraphQL - Graph Query Language
+
+Mitigates REST issue of overserving and underserving the data. Best in cases where there are multiple channels. With this cases, with REST we could have either created multiple messy endpoints for each channel or single endpoint returning overserved data for each channel. Or, where multiple REST event calls are made.
+This is still running over HTTP methods. eg. POST /graphql query {event(id: "123") {multi-level parameterized JSON}} but with new endpoint serving GraphQL API protocol.
+query body can also be in GraphQL's GET requests.
+
+eg:
+GET /graphql
+query {
+    event(id: "123") {
+        name
+        date
+        venue {
+            name
+            address
+        }
+        tickets {
+            section
+            price
+            available
+        }
+    }
+}
+
+Above corresponding multiple REST calls for several events could be GET /events/123, GET /events/123/tickets, GET venue/5234, making total 3 of overserved individual calls.
+
+A GraphQL gateway is considered the better architectural choice for deeply nested, variable data across microservices because it solves the "N+1 query problem" and orchestrates complex API aggregations on the server side rather than forcing the client to do the heavy lifting.
+
+N+1 query problem with GraphQL: Lets say GET call should return top N event rows, happens in a single DB query. However, for each event row, there are N queries made in DB for venue. This additional N queries PROBABLY is narrowed to just 1 query with REST call. This is solved in production using tools like data-loader or batching where it combines N queries in a single optimized query.
+
+Authorization problem benefit with GraphQL: While with REST whole endpoint is secured for authorization access, but in GraphQL we can set field level authorization and permission. Eg, For a given user making this request, we can only allow to query field name and date, but not revenue, per event. This is done using schema resolver.
+
+================================================================================================================================================
+
+RPC - Remote Procedure Call
+
+Suitable for inter-service communication, where requests are not made by external exposed API endpoints, but from some another backend service. Faster and lighter than REST calls. Specific variant is gRPC which uses binary protocol for serialization and HTTP/2.
+Instead of resources and URL, RPC is modeled around calling methods directly on a service, making it almost like a local function call, but its over network. This skips HTTP calls overheads like headers, status codes, URL parsing, converting to and from JSON formats, etc, by using direct function calls using compact both-side agreed binary formats. So, agreement between caller and receiver should be present. Stores data in human-UNreadalbe raw bytes format -> less space consumption -> more throughput -> low latency.
+
+Instead of GET /events/123, use RPC method getEvents(eventId: "123") where inside "()" is called request message, and returns event object is called response message.
+Instead of POST /events/123/bookings ---->  createBooking(eventId: "123", userId: "456", tickets: [...])
+Instead of GET /events/123/tickets  ---->   getAvailabelTickets(eventId: "123", section: "VIP")
+
+Since caller and receiver servers can be hosting different languages code, hence messages here are defined by data types using "Protocol Buffers" aka "ProtoBuffs", which is a compact strongly typed language. As a developer, we must define I/O message structure in routes, which will be eventually used by gRPC to generate code in different languages.
+
+service TicketService {
+    rpc GetEvent(GetEventRequest) returns (Event);
+    rpc CreateBooking(CreateBookingRequest) returns (Booking);
+    rpc GetAvailableTickets(GetTicketRequest) returns (TicketList);
+}
+
+message GetEventRequest {
+    string event_id = 1;
+}
+
+message Event {
+    string id = 1;
+    string name = 2;
+    int64 date = 3;
+    Venue venue = 4;
+}
+
+================================================================================================================================================
+
+Pagination: A solution for heavy massive Response body where we are okay to load next set of data only when asked.
+Offset based:
+GET /events?offset=1&limit=25 : first 25 events rows        {offset and page are synonyms}
+GET /events?page=2&limit=25 : events from row 26 to 50
+Demerit: Between above 2 calls, there could be some event addition that made first 25 rows to shift to next 25 rows. So, in next page=2 call, we'll see same event rows which are there from page=1.
+
+Solution: Cursor based pagination, uses row reference such as row ID or timestamp, etc. in subsequent calls.
+GET /events?limit=25 : first 25 events from sorted ordered events, starting from first event. Let's say, its last row of response data has event ID 789.
+GET /events?cursor=789&limit=25 : first 25 events from sorted ordered events, starting from event ID 789.
+This mitigates repeated event data operation on subsequent offset based pagination, but it does not at all solves problem to get event data which are added before second call whose event ID is less than 789.
+
+================================================================================================================================================
+
+Security: Certain REST event call is authenticated based on roles of the caller/User. Notation (just for visual purpose): So, not only user needs tobe authenticated but role should be as admin. Only then that user could be able to make the POST call for /events. This is called RBAC(Role Based Access Control)
+@auth :admin
+POST /events
+
+Roles:
+- customer: can book tickets, view own bookings
+- venue_manager: can create events, view sales for their venues
+- admin: can access everything
+
+User: john@example.com → Role: customer
+User: manager@venue.com → Role: venue_manager
+
+Actually implemented using
+    - API Keys : "Authorization : Bearer random_character_string_of_certain_long_length_cryptographic_key_snvjdfdf_rv983tr93hf978453_i3uf37fprch437r2930mr4375"
+                They dont have expiration. They are meant for internal accessibility of services or external developer accessing them, and NOT for public client exposed API calls. This key is mapped to caller's rate-limit, privileges, etc.
+    - JWT(JSON Web Token) : SIGNED_JSON_BLOB{nameAndMinimumData + role/privilege + session_expiry_time + secret_key} so that even if client tampers the token, the signature will be used to verify authenticity on server and hence there is trusted data. This gives User's info without any DB lookups, only if its validated correctly to authorize the request. Any service that have access to verification key, can authenticate the JWT.
+    - session token : In HTTP req header, its just a string which retrieves the session info like name+role/privilege
+
+================================================================================================================================================
+
+WebSockets
+
+================================================================================================================================================
+
+Server-Sent Events
+
+================================================================================================================================================
+
+WebRTC
+
+================================================================================================================================================
+
+Learn about several HTTP types, 1.0, 1.1, 2, 3; Multiplexing; QUIC transport layer protocol in HTTP/3; head-of-line block

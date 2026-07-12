@@ -64,7 +64,7 @@ public class DemoServlete1 extends HttpServlet {
 <servlet>
     <servlet-name>DemoServlet2</servlet-name>
     <servlet-class>DemoServlet2</servlet-class>
-</servlet>
+</servlet>s
 
 <servlet-mapping>
     <servlet-name>DemoServlet2</servlet-name>

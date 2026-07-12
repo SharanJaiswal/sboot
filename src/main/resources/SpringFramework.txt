@@ -4,7 +4,7 @@ SPRING MVC (for web applications and RESTful APIs) OR SPRING FRAMEWORK (for gene
 
               ------------------------------------        ------------------ ==> 1. Choose the controller  ---->               |Uses Handler Mapping|
 i/p req ====> |                                  |        |   internally   |
-              |         SERVICE CONTAINER        | =====> | maintained.    | ==> 2. Create instance of controller and its dependencies  ---> |IoC|
+              |         SERVICE CONTAINER        | =====> |   maintained.  | ==> 2. Create instance of controller and its dependencies  ---> |IoC| aka "ServletWebServerApplicationContext" (in bootRun logs)
               |          (TOMCAT SERVER -        |        |  DISPATCHER.   |                                                          |-------------|
               |  WE HAVE TO DEPLOY OUR APP HERE  |        |  SERVLET CLASS,| ==> 3. Invokes the corresponding Controller Method ----> | CONTROLLER  |
               |  AS ITS NOT DONE AUTOMATICALLY   |        |  aka, FIRST    |                                                          |invoke corres|
@@ -36,9 +36,10 @@ public class DemoController {
 
 
 -> When request comes to servlet container it takes request pattern and sends it to dispatcher servlet class (which might be internally maintaining Web.xml file).
--> Dispatcher servlet class then resolves request to invoke certain controller class and its method using handler mapping.
+-> Dispatcher servlet class then resolves request using handler mapping by sending the incoming request to handler mapping. Once it sends back the resolved result containing which controller to pick, then IoC comes into
+picture.
 -> The controller class instance is created (as per object creation requirements) after its dependencies are created and injected using IoC (Inversion of Control).
--> Further Controller instance method is invoked to handle the request of certain HTTP method present in request and generate a response.
+-> Further certain controller class and its instance method is invoked to handle the request of certain HTTP method present in request and generate a response.
 -> The response is then sent back to the client. The controller class can use the request and response objects to read data from the request and write data to the response.
 -> The controller class can also use the request and response objects to set headers, cookies, and other information in the response. 
 -> The controller class can also use the request and response objects to forward the request to another controller or JSP page. 
